@@ -60,8 +60,7 @@ public class JsonPokemonRepository implements PokemonRepository {
                 default -> throw new IllegalArgumentException("Tipo desconhecido: " + type);
             };
             pokemon.setIdentity(id, nextId);
-            String moves = arrayValue(block, "moves");
-            for (String moveBlock : extractObjects(moves)) {
+            for (String moveBlock : extractObjects(arrayValue(block, "moves"))) {
                 pokemon.addMove(new Move(stringValue(moveBlock, "name"),
                         intValue(moveBlock, "power", 0), intValue(moveBlock, "accuracy", 100),
                         stringValue(moveBlock, "type"), intValue(moveBlock, "maxPP", 10)));
@@ -110,11 +109,14 @@ public class JsonPokemonRepository implements PokemonRepository {
         throw new IllegalArgumentException("Array inválido: " + key);
     }
 
-    @Override public List<Pokemon> findAll() { return new ArrayList<>(cachePokemons); }
+    @Override public List<Pokemon> findAll() {
+        return cachePokemons.stream().map(Pokemon::copy).toList();
+    }
     @Override public Optional<Pokemon> findByName(String name) {
-        return cachePokemons.stream().filter(p -> p.getName().equalsIgnoreCase(name)).findFirst();
+        return cachePokemons.stream().filter(p -> p.getName().equalsIgnoreCase(name))
+                .findFirst().map(Pokemon::copy);
     }
     @Override public Optional<Pokemon> findById(int id) {
-        return cachePokemons.stream().filter(p -> p.getId() == id).findFirst();
+        return cachePokemons.stream().filter(p -> p.getId() == id).findFirst().map(Pokemon::copy);
     }
 }

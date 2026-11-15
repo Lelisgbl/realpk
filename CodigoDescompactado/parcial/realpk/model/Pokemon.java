@@ -31,6 +31,24 @@ public abstract class Pokemon {
 
     public abstract void performSpecialAbility();
 
+    public Pokemon copy() {
+        Pokemon clone = switch (type.toUpperCase()) {
+            case "FIRE" -> new FirePokemon(name, level, maxHp, attack, defense, speed);
+            case "WATER" -> new WaterPokemon(name, level, maxHp, attack, defense, speed);
+            case "GRASS" -> new GrassPokemon(name, level, maxHp, attack, defense, speed);
+            default -> throw new IllegalStateException("Tipo desconhecido: " + type);
+        };
+        clone.id = id;
+        clone.experience = experience;
+        clone.nextEvolutionId = nextEvolutionId;
+        clone.currentHp = currentHp;
+        for (Move move : moves) {
+            clone.addMove(new Move(move.getName(), move.getPower(), move.getAccuracy(),
+                    move.getType(), move.getMaxPP()));
+        }
+        return clone;
+    }
+
     public void setIdentity(int id, int nextEvolutionId) {
         this.id = id;
         this.nextEvolutionId = nextEvolutionId;
