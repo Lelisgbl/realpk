@@ -3,6 +3,7 @@ import infra.JsonPokemonRepository;
 import infra.PokemonRepository;
 import model.Pokemon;
 import view.BattleScreen;
+import model.BattleEngine;
 
 public class Main {
     public static void main(String[] args) {
@@ -21,6 +22,8 @@ public class Main {
 
         if (charmander != null && bulbasaur != null) {
             battleScreen.renderBattleUI(charmander, bulbasaur);
+            BattleEngine battleEngine = new BattleEngine(charmander, bulbasaur);
+            
         }
     }
 }
