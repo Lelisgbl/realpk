@@ -1,0 +1,2 @@
+nessa parcial a única coisa de diferente que da pra fazer e trocar um dos pokemons que já estão no código (charmander e bulbassauro) pelo squirtle
+tirando isso e so rodar o código na main que já carrega os pokemons e os sprits deles (so o do bulbassauro ta bonito n troquei os outros ainda)
