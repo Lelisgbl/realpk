@@ -1,31 +1,65 @@
 [
   {
-    "id": 1,
-    "name": "Bulbasaur",
-    "type": "GRASS",
-    "hp": 45,
-    "attack": 49,
-    "defense": 49,
-    "speed": 45
+    "id": 1, "name": "Bulbasaur", "type": "GRASS", "level": 5,
+    "hp": 45, "attack": 49, "defense": 49, "speed": 45, "evolutionId": 2,
+    "moves": [
+      {"name": "Quick Attack", "power": 20, "accuracy": 100, "type": "NORMAL", "maxPP": 20}
+    ]
   },
   {
-    "id": 4,
-    "name": "Charmander",
-    "type": "FIRE",
-    "hp": 39,
-    "attack": 52,
-    "defense": 43,
-    "speed": 65
-   
+    "id": 2, "name": "Ivysaur", "type": "GRASS", "level": 5,
+    "hp": 60, "attack": 62, "defense": 63, "speed": 60, "evolutionId": 3,
+    "moves": [
+      {"name": "Razor Leaf", "power": 35, "accuracy": 95, "type": "GRASS", "maxPP": 15}
+    ]
   },
   {
-    "id": 7,
-    "name": "Squirtle",
-    "type": "WATER",
-    "hp": 44,
-    "attack": 48,
-    "defense": 65,
-    "speed": 43
-    
+    "id": 3, "name": "Venusaur", "type": "GRASS", "level": 5,
+    "hp": 80, "attack": 82, "defense": 83, "speed": 80, "evolutionId": 0,
+    "moves": [
+      {"name": "Solar Beam", "power": 60, "accuracy": 90, "type": "GRASS", "maxPP": 10}
+    ]
+  },
+  {
+    "id": 4, "name": "Charmander", "type": "FIRE", "level": 5,
+    "hp": 39, "attack": 52, "defense": 43, "speed": 65, "evolutionId": 5,
+    "moves": [
+      {"name": "Quick Attack", "power": 20, "accuracy": 100, "type": "NORMAL", "maxPP": 20}
+    ]
+  },
+  {
+    "id": 5, "name": "Charmeleon", "type": "FIRE", "level": 5,
+    "hp": 58, "attack": 64, "defense": 58, "speed": 80, "evolutionId": 6,
+    "moves": [
+      {"name": "Flame Burst", "power": 35, "accuracy": 95, "type": "FIRE", "maxPP": 15}
+    ]
+  },
+  {
+    "id": 6, "name": "Charizard", "type": "FIRE", "level": 5,
+    "hp": 78, "attack": 84, "defense": 78, "speed": 100, "evolutionId": 0,
+    "moves": [
+      {"name": "Flamethrower", "power": 60, "accuracy": 90, "type": "FIRE", "maxPP": 10}
+    ]
+  },
+  {
+    "id": 7, "name": "Squirtle", "type": "WATER", "level": 5,
+    "hp": 44, "attack": 48, "defense": 65, "speed": 43, "evolutionId": 8,
+    "moves": [
+      {"name": "Quick Attack", "power": 20, "accuracy": 100, "type": "NORMAL", "maxPP": 20}
+    ]
+  },
+  {
+    "id": 8, "name": "Wartortle", "type": "WATER", "level": 5,
+    "hp": 59, "attack": 63, "defense": 80, "speed": 58, "evolutionId": 9,
+    "moves": [
+      {"name": "Water Pulse", "power": 35, "accuracy": 95, "type": "WATER", "maxPP": 15}
+    ]
+  },
+  {
+    "id": 9, "name": "Blastoise", "type": "WATER", "level": 5,
+    "hp": 79, "attack": 83, "defense": 100, "speed": 78, "evolutionId": 0,
+    "moves": [
+      {"name": "Hydro Pump", "power": 60, "accuracy": 80, "type": "WATER", "maxPP": 5}
+    ]
   }
 ]

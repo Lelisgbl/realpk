@@ -1,148 +1,120 @@
 package infra;
 
-import model.GrassPokemon;
 import model.FirePokemon;
-import model.WaterPokemon;
+import model.GrassPokemon;
 import model.Move;
 import model.Pokemon;
+import model.WaterPokemon;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class JsonPokemonRepository implements PokemonRepository {
-
-    private final List<Pokemon> cachePokemons;
+    private final List<Pokemon> cachePokemons = new ArrayList<>();
 
     public JsonPokemonRepository(String filePath) {
-        this.cachePokemons = new ArrayList<>();
         carregarDadosDoArquivo(filePath);
     }
 
-    /**
-     * Lê o arquivo estruturado usando BufferedReader e realiza o parsing.
-     */
     private void carregarDadosDoArquivo(String filePath) {
-        StringBuilder jsonContent = new StringBuilder();
-
+        StringBuilder json = new StringBuilder();
         try (BufferedReader reader = abrirReader(filePath)) {
             String line;
-            while ((line = reader.readLine()) != null) {
-                jsonContent.append(line.trim());
-            }
+            while ((line = reader.readLine()) != null) json.append(line).append('\n');
         } catch (IOException e) {
-            System.err.println("Erro ao ler o arquivo de Pokémons: " + e.getMessage());
-            return;
+            throw new IllegalStateException("Erro ao ler o arquivo de Pokémons: " + e.getMessage(), e);
         }
-
-        parseJsonToObjects(jsonContent.toString());
+        parseJsonToObjects(json.toString());
     }
 
     private BufferedReader abrirReader(String filePath) throws IOException {
-        // Tenta carregar como recurso do classpath primeiro
-        InputStream is = getClass().getClassLoader().getResourceAsStream(filePath);
-        if (is != null) {
-            return new BufferedReader(new InputStreamReader(is));
-        }
-        // Se não encontrar no classpath, tenta como caminho do sistema de arquivos
-        return new BufferedReader(new FileReader(filePath));
+        InputStream input = getClass().getClassLoader().getResourceAsStream(filePath);
+        if (input != null) return new BufferedReader(new InputStreamReader(input, StandardCharsets.UTF_8));
+        return new BufferedReader(new FileReader(filePath, StandardCharsets.UTF_8));
     }
 
-    /**
-     * Parser manual básico para JSON sem bibliotecas externas
-     */
     private void parseJsonToObjects(String json) {
-        if (json.startsWith("[")) {
-            json = json.substring(1, json.length() - 1);
-        }
-
-        // Divide o array JSON pelos objetos de Pokémon
-        String[] pokemonBlocks = json.split("(?<=\\}),\\s*(?=\\{)");
-
-        for (String block : pokemonBlocks) {
-            try {
-                int id = Integer.parseInt(extractValue(block, "id"));
-                String name = extractValue(block, "name");
-                String type = extractValue(block, "type");
-                int hp = Integer.parseInt(extractValue(block, "hp"));
-                int attack = Integer.parseInt(extractValue(block, "attack"));
-                int defense = Integer.parseInt(extractValue(block, "defense"));
-                int speed = Integer.parseInt(extractValue(block, "speed"));
-
-                // Instanciação polimórfica com base no Tipo
-                Pokemon pokemon = criarInstanciaPokemon(type, name, hp, attack, defense, speed);
-
-                // Parsing e inclusão dos golpes (Moves)
-                if (block.contains("\"moves\"")) {
-                    String movesBlock = block.substring(block.indexOf("\"moves\""));
-                    parseMoves(movesBlock, pokemon);
-                }
-
-                cachePokemons.add(pokemon);
-            } catch (Exception e) {
-                System.err.println("Erro ao realizar parsing do Pokémon: " + e.getMessage());
+        for (String block : extractObjects(json)) {
+            int id = intValue(block, "id", 0);
+            String name = stringValue(block, "name");
+            String type = stringValue(block, "type");
+            int level = intValue(block, "level", 5);
+            int nextId = intValue(block, "evolutionId", 0);
+            int hp = intValue(block, "hp", 1);
+            int attack = intValue(block, "attack", 1);
+            int defense = intValue(block, "defense", 1);
+            int speed = intValue(block, "speed", 1);
+            Pokemon pokemon = switch (type.toUpperCase()) {
+                case "FIRE" -> new FirePokemon(name, level, hp, attack, defense, speed);
+                case "WATER" -> new WaterPokemon(name, level, hp, attack, defense, speed);
+                case "GRASS" -> new GrassPokemon(name, level, hp, attack, defense, speed);
+                default -> throw new IllegalArgumentException("Tipo desconhecido: " + type);
+            };
+            pokemon.setIdentity(id, nextId);
+            String moves = arrayValue(block, "moves");
+            for (String moveBlock : extractObjects(moves)) {
+                pokemon.addMove(new Move(stringValue(moveBlock, "name"),
+                        intValue(moveBlock, "power", 0), intValue(moveBlock, "accuracy", 100),
+                        stringValue(moveBlock, "type"), intValue(moveBlock, "maxPP", 10)));
             }
+            cachePokemons.add(pokemon);
         }
     }
 
-    private Pokemon criarInstanciaPokemon(String type, String name, int hp, int attack, int defense, int speed) {
-        return switch (type.toUpperCase()) {
-            case "FIRE" -> new FirePokemon(name, 5, hp, attack, defense, speed);
-            case "WATER" -> new WaterPokemon(name, 5, hp, attack, defense, speed);
-            case "GRASS" -> new GrassPokemon(name, 5, hp, attack, defense, speed);
-            default -> throw new IllegalArgumentException("Tipo desconhecido: " + type);
-        };
-    }
-
-    private void parseMoves(String movesJson, Pokemon pokemon) {
-        String[] moveBlocks = movesJson.split("(?<=\\}),\\s*(?=\\{)");
-        for (String moveBlock : moveBlocks) {
-            try {
-                String moveName = extractValue(moveBlock, "name");
-                int power = Integer.parseInt(extractValue(moveBlock, "power"));
-                int accuracy = Integer.parseInt(extractValue(moveBlock, "accuracy"));
-                String type = extractValue(moveBlock, "type");
-                int maxPP = Integer.parseInt(extractValue(moveBlock, "maxPP"));
-
-                pokemon.addMove(new Move(moveName, power, accuracy, type, maxPP));
-            } catch (Exception ignored) {
-                // Avança para o próximo golpe em caso de falha pontual de parsing
-            }
+    private List<String> extractObjects(String json) {
+        List<String> objects = new ArrayList<>();
+        boolean quoted = false;
+        int depth = 0, start = -1;
+        for (int i = 0; i < json.length(); i++) {
+            char c = json.charAt(i);
+            if (c == '"' && (i == 0 || json.charAt(i - 1) != '\\')) quoted = !quoted;
+            if (quoted) continue;
+            if (c == '{') { if (depth++ == 0) start = i; }
+            else if (c == '}' && --depth == 0 && start >= 0) objects.add(json.substring(start, i + 1));
         }
+        return objects;
     }
 
-    private String extractValue(String json, String key) {
-        String pattern = "\"" + key + "\":\\s*\"?([^\",\\}\\]]+)\"?";
-        java.util.regex.Pattern p = java.util.regex.Pattern.compile(pattern);
-        java.util.regex.Matcher m = p.matcher(json);
-        if (m.find()) {
-            return m.group(1).trim();
+    private String stringValue(String json, String key) {
+        Matcher m = Pattern.compile("\"" + Pattern.quote(key) + "\"\\s*:\\s*\"([^\"]*)\"").matcher(json);
+        if (!m.find()) throw new IllegalArgumentException("Campo ausente: " + key);
+        return m.group(1);
+    }
+
+    private int intValue(String json, String key, int fallback) {
+        Matcher m = Pattern.compile("\"" + Pattern.quote(key) + "\"\\s*:\\s*(\\d+)").matcher(json);
+        return m.find() ? Integer.parseInt(m.group(1)) : fallback;
+    }
+
+    private String arrayValue(String json, String key) {
+        Matcher m = Pattern.compile("\"" + Pattern.quote(key) + "\"\\s*:\\s*\\[").matcher(json);
+        if (!m.find()) return "[]";
+        int start = m.end() - 1, depth = 0;
+        boolean quoted = false;
+        for (int i = start; i < json.length(); i++) {
+            char c = json.charAt(i);
+            if (c == '"' && (i == 0 || json.charAt(i - 1) != '\\')) quoted = !quoted;
+            if (quoted) continue;
+            if (c == '[') depth++;
+            else if (c == ']' && --depth == 0) return json.substring(start, i + 1);
         }
-        throw new IllegalArgumentException("Chave não encontrada: " + key);
+        throw new IllegalArgumentException("Array inválido: " + key);
     }
 
-    @Override
-    public List<Pokemon> findAll() {
-        return new ArrayList<>(cachePokemons);
+    @Override public List<Pokemon> findAll() { return new ArrayList<>(cachePokemons); }
+    @Override public Optional<Pokemon> findByName(String name) {
+        return cachePokemons.stream().filter(p -> p.getName().equalsIgnoreCase(name)).findFirst();
     }
-
-    @Override
-    public Optional<Pokemon> findByName(String name) {
-        return cachePokemons.stream()
-                .filter(p -> p.getName().equalsIgnoreCase(name))
-                .findFirst();
-    }
-
-    @Override
-    public Optional<Pokemon> findById(int id) {
-        // Exemplo simplificado de busca no cache
-        return cachePokemons.stream()
-                .filter(p -> p.getName().toLowerCase().contains(String.valueOf(id)))
-                .findFirst();
+    @Override public Optional<Pokemon> findById(int id) {
+        return cachePokemons.stream().filter(p -> p.getId() == id).findFirst();
     }
 }
