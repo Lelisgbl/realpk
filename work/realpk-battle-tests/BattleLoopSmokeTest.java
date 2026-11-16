@@ -31,7 +31,7 @@ public class BattleLoopSmokeTest {
         } finally { System.setOut(previous); }
         String log = captured.toString();
         require(engine.checkWinner() == player, "battle did not resolve to player victory");
-        require(player.getExperience() == 275, "attack and win XP not both granted: " + player.getExperience());
+        require(player.getExperience() == 525, "4x victory reward plus attack XP not granted: " + player.getExperience());
         require(log.contains("Escolha inválida"), "invalid choice was not handled");
         require(log.contains("Vencedor:"), "winner was not announced");
 

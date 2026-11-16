@@ -132,6 +132,22 @@ public abstract class Pokemon {
 
     public boolean isFainted() { return currentHp <= 0; }
     public boolean addMove(Move move) { if (moves.size() < 4) { moves.add(move); return true; } return false; }
+    public void restoreProgress(int level, int experience, int currentHp, int maxHp,
+                                int attack, int defense, int speed, List<Move> savedMoves) {
+        this.level = level;
+        this.experience = experience;
+        this.maxHp = maxHp;
+        this.currentHp = Math.max(0, Math.min(maxHp, currentHp));
+        this.attack = attack;
+        this.defense = defense;
+        this.speed = speed;
+        this.moves = new ArrayList<>();
+        for (Move move : savedMoves) addMove(move);
+    }
+    public void prepareForBattle() {
+        currentHp = maxHp;
+        for (Move move : moves) move.restoreCurrentPP(move.getMaxPP());
+    }
     public float getHpPercentage() { return maxHp == 0 ? 0 : ((float) currentHp / maxHp) * 100; }
     public int getId() { return id; }
     public String getName() { return name; }
