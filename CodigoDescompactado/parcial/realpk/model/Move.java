@@ -49,4 +49,8 @@ public class Move {
     public int getMaxPP() {
         return maxPP;
     }
+
+    public void restoreCurrentPP(int currentPP) {
+        this.currentPP = Math.max(0, Math.min(maxPP, currentPP));
+    }
 }
