@@ -5,6 +5,7 @@ import infra.SaveGameManager;
 import model.BattleEngine;
 import model.Pokemon;
 import view.BattleScreen;
+import view.IntroScreen;
 import view.PokedexScreen;
 
 import java.util.Random;
@@ -15,9 +16,12 @@ public class Main {
         PokemonRepository pokemonRepository = new JsonPokemonRepository("pokemons.json");
         SaveGameManager saveGame = new SaveGameManager("pokemon-save.properties", pokemonRepository);
         PokedexScreen pokedex = new PokedexScreen(pokemonRepository);
-        BattleScreen battleScreen = new BattleScreen(new AsciiArtRepository("ascii_arts.txt"));
+        AsciiArtRepository artRepository = new AsciiArtRepository("ascii_arts.txt");
+        BattleScreen battleScreen = new BattleScreen(artRepository);
+        IntroScreen introScreen = new IntroScreen(artRepository);
 
         try (Scanner input = new Scanner(System.in)) {
+            introScreen.show(input);
             runMainMenu(input, pokemonRepository, pokedex, battleScreen, saveGame);
         }
     }

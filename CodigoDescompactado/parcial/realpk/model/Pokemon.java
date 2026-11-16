@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Pokemon {
+    private static final double FINAL_DAMAGE_DIVISOR = 2.0;
     protected int id;
     protected String name;
     protected String type;
@@ -71,18 +72,24 @@ public abstract class Pokemon {
             return false;
         }
         double multiplier = TypeEffectiveness.multiplier(move.getType(), target);
-        int rawDamage = Math.max(1, attack + move.getPower() - target.getDefense() / 2);
-        int damage = (int) Math.round(rawDamage * multiplier);
         System.out.println(name + " usou " + move.getName() + "!");
         if (multiplier == 0.0) {
             System.out.println(TypeEffectiveness.describe(multiplier));
         } else {
+            int damage = calculateDamage(move, target, multiplier);
             target.takeDamage(damage);
             if (multiplier != 1.0) {
                 System.out.println(TypeEffectiveness.describe(multiplier) + " (" + damage + " de dano)");
             }
         }
         return true;
+    }
+
+    private int calculateDamage(Move move, Pokemon target, double effectiveness) {
+        double levelFactor = (2.0 * level / 5.0) + 2.0;
+        double attackDefenseRatio = (attack * effectiveness) / Math.max(1.0, target.getDefense());
+        double formulaDamage = ((levelFactor * move.getPower() * attackDefenseRatio) / 5.0) + 2.0;
+        return Math.max(1, (int) Math.round(formulaDamage / FINAL_DAMAGE_DIVISOR));
     }
 
     public void takeDamage(int damage) {

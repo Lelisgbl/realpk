@@ -30,7 +30,7 @@ public class PokedexScreen {
     }
 
     public Pokemon choosePokemon(Scanner input) {
-        List<Pokemon> pokemon = pokemonRepository.findAll().stream()
+        List<Pokemon> pokemon = pokemonRepository.findBaseSpecies().stream()
                 .sorted(Comparator.comparingInt(Pokemon::getId))
                 .toList();
         if (pokemon.isEmpty()) {

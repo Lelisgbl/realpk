@@ -25,7 +25,7 @@ public class PokedexSelectionTest {
         System.setOut(new PrintStream(output));
         try {
             screen.displayCatalog();
-            Pokemon selected = screen.choosePokemon(new Scanner("999\n4\n"));
+            Pokemon selected = screen.choosePokemon(new Scanner("2\n999\n4\n"));
             check(selected != null && selected.getId() == 4, "valid selection after invalid ID failed");
             check(screen.choosePokemon(new Scanner("0\n")) == null, "cancel selection failed");
         } finally {
@@ -33,7 +33,8 @@ public class PokedexSelectionTest {
         }
         String catalog = output.toString();
         check(catalog.contains("POKÉDEX") && catalog.contains("#001 Bulbasaur")
-                && catalog.contains("#068 Machamp"), "catalog did not display all entries");
+                && catalog.contains("#066 Machop") && catalog.contains("#016 Pidgey")
+                && catalog.contains("#002 Ivysaur") && catalog.contains("#068 Machamp"), "full catalog is not displayed");
         check(catalog.contains("Número inválido"), "invalid selection feedback missing");
         System.out.println("POKEDEX_ACCESS_AND_SELECTION_TESTS_OK");
     }
