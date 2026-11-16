@@ -4,7 +4,6 @@ import infra.PokemonRepository;
 import model.BattleEngine;
 import model.Pokemon;
 import view.BattleScreen;
-
 import java.util.Random;
 import java.util.Scanner;
 
