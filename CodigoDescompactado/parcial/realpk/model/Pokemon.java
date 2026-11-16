@@ -144,6 +144,10 @@ public abstract class Pokemon {
         this.moves = new ArrayList<>();
         for (Move move : savedMoves) addMove(move);
     }
+    public void prepareForBattle() {
+        currentHp = maxHp;
+        for (Move move : moves) move.restoreCurrentPP(move.getMaxPP());
+    }
     public float getHpPercentage() { return maxHp == 0 ? 0 : ((float) currentHp / maxHp) * 100; }
     public int getId() { return id; }
     public String getName() { return name; }
