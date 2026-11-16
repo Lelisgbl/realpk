@@ -2,6 +2,7 @@ package infra;
 
 import model.FirePokemon;
 import model.GrassPokemon;
+import model.GenericPokemon;
 import model.Move;
 import model.Pokemon;
 import model.WaterPokemon;
@@ -57,9 +58,11 @@ public class JsonPokemonRepository implements PokemonRepository {
                 case "FIRE" -> new FirePokemon(name, level, hp, attack, defense, speed);
                 case "WATER" -> new WaterPokemon(name, level, hp, attack, defense, speed);
                 case "GRASS" -> new GrassPokemon(name, level, hp, attack, defense, speed);
-                default -> throw new IllegalArgumentException("Tipo desconhecido: " + type);
+                default -> new GenericPokemon(name, type, level, hp, attack, defense, speed);
             };
             pokemon.setIdentity(id, nextId);
+            Matcher secondaryType = Pattern.compile("\\\"secondaryType\\\"\\s*:\\s*\\\"([^\\\"]*)\\\"").matcher(block);
+            if (secondaryType.find()) pokemon.setSecondaryType(secondaryType.group(1));
             for (String moveBlock : extractObjects(arrayValue(block, "moves"))) {
                 pokemon.addMove(new Move(stringValue(moveBlock, "name"),
                         intValue(moveBlock, "power", 0), intValue(moveBlock, "accuracy", 100),

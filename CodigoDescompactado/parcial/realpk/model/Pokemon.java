@@ -7,6 +7,7 @@ public abstract class Pokemon {
     protected int id;
     protected String name;
     protected String type;
+    protected String secondaryType = "";
     protected int level;
     protected int experience;
     protected int nextEvolutionId;
@@ -36,11 +37,12 @@ public abstract class Pokemon {
             case "FIRE" -> new FirePokemon(name, level, maxHp, attack, defense, speed);
             case "WATER" -> new WaterPokemon(name, level, maxHp, attack, defense, speed);
             case "GRASS" -> new GrassPokemon(name, level, maxHp, attack, defense, speed);
-            default -> throw new IllegalStateException("Tipo desconhecido: " + type);
+            default -> new GenericPokemon(name, type, level, maxHp, attack, defense, speed);
         };
         clone.id = id;
         clone.experience = experience;
         clone.nextEvolutionId = nextEvolutionId;
+        clone.secondaryType = secondaryType;
         clone.currentHp = currentHp;
         for (Move move : moves) {
             clone.addMove(new Move(move.getName(), move.getPower(), move.getAccuracy(),
@@ -52,6 +54,10 @@ public abstract class Pokemon {
     public void setIdentity(int id, int nextEvolutionId) {
         this.id = id;
         this.nextEvolutionId = nextEvolutionId;
+    }
+
+    public void setSecondaryType(String secondaryType) {
+        this.secondaryType = secondaryType == null ? "" : secondaryType.trim();
     }
 
     public boolean attack(int moveIndex, Pokemon target) {
@@ -112,7 +118,7 @@ public abstract class Pokemon {
         attack += Math.max(0, form.attack - attack);
         defense += Math.max(0, form.defense - defense);
         speed += Math.max(0, form.speed - speed);
-        id = form.id; name = form.name; type = form.type;
+        id = form.id; name = form.name; type = form.type; secondaryType = form.secondaryType;
         nextEvolutionId = form.nextEvolutionId;
         for (Move move : form.moves) {
             boolean known = moves.stream().anyMatch(m -> m.getName().equalsIgnoreCase(move.getName()));
@@ -130,6 +136,9 @@ public abstract class Pokemon {
     public int getId() { return id; }
     public String getName() { return name; }
     public String getType() { return type; }
+    public List<String> getTypes() {
+        return secondaryType.isBlank() ? List.of(type) : List.of(type, secondaryType);
+    }
     public int getLevel() { return level; }
     public int getExperience() { return experience; }
     public int getExperienceToNextLevel() { return experienceToNextLevel(); }

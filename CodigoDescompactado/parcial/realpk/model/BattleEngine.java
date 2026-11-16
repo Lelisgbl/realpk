@@ -35,7 +35,7 @@ public class BattleEngine {
     public static Pokemon chooseRandomOpponent(List<Pokemon> catalog, Pokemon player, Random random) {
         List<Pokemon> differentType = catalog.stream()
                 .filter(p -> p.getId() != player.getId())
-                .filter(p -> !p.getType().equalsIgnoreCase(player.getType()))
+                .filter(p -> !p.getTypes().equals(player.getTypes()))
                 .toList();
         List<Pokemon> candidates = differentType.isEmpty()
                 ? catalog.stream().filter(p -> p.getId() != player.getId()).toList()
