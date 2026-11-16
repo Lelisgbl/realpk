@@ -1,16 +1,55 @@
-nessa parcial a única coisa de diferente que da pra fazer e trocar um dos pokemons que já estão no código (charmander e bulbassauro) pelo squirtle
-tirando isso e so rodar o código na main que já carrega os pokemons e os sprits deles (so o do bulbassauro ta bonito n troquei os outros ainda)
+Miniguia do projeto Pokémon
 
-Como adicionar novos pokemons e tipos no arquivo pokemon.json:
+O jogo é um programa Java de terminal. Para entendê-lo, comece por Main.java: ele monta os componentes, mostra a tela de entrada e abre o menu. As classes ficam organizadas por responsabilidade:
+- model/: regras e estado do jogo, como Pokémon, golpes, efetividade de tipos e batalha.
+- infra/: leitura do catálogo e das artes, além de carregar, salvar e resetar o progresso.
+- view/: telas do terminal, como Pokédex, batalha e introdução.
+- pokemons.json: dados das espécies e formas.
+- ascii_arts.txt: artes usadas nas telas.
+Como o jogo funciona
+Ao iniciar, Main mostra a introdução e espera Enter. Depois, abre o menu. A Pokédex exibe todas as formas do catálogo, mas um novo jogo permite escolher apenas formas iniciais. O rival é sorteado entre os Pokémon do catálogo.
 
-// Catálogo em JSONC: comentários // e /* ... */ são aceitos pelo JsonPokemonRepository.
-// Adicione cada forma como um objeto com id único, name, type, level, hp, attack, defense,
-// speed, evolutionId (0 na forma final) e moves (1 a 4 golpes com name/power/accuracy/type/maxPP).
-// Ligue a família pelos IDs: espécie-base -> forma intermediária -> forma final.
-// Tipos sem subclasse dedicada usam GenericPokemon automaticamente; registre sua eficácia
-// com TypeEffectiveness.registerType("NOVO_TIPO", "fortes", "resistidos", "imunes").
-// Nos três últimos campos, liste tipos defensores separados por espaço; use "" se não houver.
+Durante a batalha, BattleEngine controla os turnos, a ordem por velocidade, os golpes aleatórios do rival, o XP e a evolução. Pokemon guarda atributos e golpes, calcula o dano e altera o estado do Pokémon. Ao final, SaveGameManager salva o progresso em pokemon-save.properties.
+Adicionar uma espécie e suas evoluções
+No pokemons.json, adicione um objeto para cada forma. Cada uma precisa de um ID único e de atributos como nome, tipo, nível, HP, ataque, defesa, velocidade e golpes.
 
-//tratamento de JSONC estão em [pokemons.json] e [JsonPokemonRepository.java]
+Para ligar uma família, a forma atual aponta para a próxima usando evolutionId:
 
-//O método para registrar efetividade está em [TypeEffectiveness.java]
+{"id": 101, "name": "NovoPokemon", "type": "FIRE", "level": 5,
+ "hp": 40, "attack": 50, "defense": 40, "speed": 45, "evolutionId": 102,
+ "moves": [{"name": "Quick Attack", "power": 10, "accuracy": 100, "type": "NORMAL", "maxPP": 20}]}
+A forma intermediária deve apontar para a final; na última forma, use "evolutionId": 0. Confirme que nenhum outro Pokémon usa os mesmos IDs.
+
+A seleção de novo jogo identifica formas iniciais como aquelas que não são destino de uma evolução. Portanto, conecte corretamente os IDs da família: se a forma inicial aponta para a intermediária, ela aparecerá como escolha inicial; as formas seguintes permanecem na Pokédex e podem ser alcançadas ao evoluir.
+
+Cada Pokémon deve ter ao menos um golpe para poder lutar. A evolução acrescenta os golpes listados na nova forma aos já conhecidos, até o limite de quatro golpes.
+Tipos
+Use "type" para o tipo principal e "secondaryType" para um segundo tipo, se houver. Tipos como Fogo, Água e Planta usam subclasses próprias; outros tipos usam GenericPokemon.
+
+Para adicionar um tipo ao cálculo de efetividade, registre uma linha em TypeEffectiveness.registerType(...):
+TypeEffectiveness.registerType(
+    "NOVO_TIPO",
+    "TIPOS_DEFENSORES_FRACOS",
+    "TIPOS_DEFENSORES_RESISTENTES",
+    "TIPOS_DEFENSORES_IMUNES"
+);
+
+Os nomes dessa linha são os tipos dos defensores contra os quais o golpe do novo tipo é forte, resistido ou ineficaz. Para definir como o novo tipo se defende de ataques existentes, inclua-o também nas linhas dos tipos de ataque relevantes. Relações sem regra cadastrada são neutras.
+Adicionar a arte ASCII
+No ascii_arts.txt, use um cabeçalho com o mesmo nome cadastrado no JSON:
+===NOVOPOKEMON===
+sua arte ASCII aqui
+A forma evoluída precisa de seu próprio cabeçalho e sua própria arte. A tela de introdução usa o nome INTRO:
+===INTRO===
+arte da tela inicial
+O carregador ignora diferenças entre maiúsculas e minúsculas no nome.
+
+Onde mexer para funções comuns
+- Novo Pokémon, atributos, golpes e IDs: pokemons.json.
+- Arte de uma forma ou da introdução: ascii_arts.txt.
+- Regras de efetividade: TypeEffectiveness.java.
+- Dano e divisor final da fórmula: Pokemon.java, no método de ataque/cálculo de dano.
+- XP e evolução após batalha: BattleEngine.java.
+- Opções do menu: Main.java.
+- Salvar, carregar ou resetar progresso: SaveGameManager.java.
+Para compilar, compile todos os .java do projeto e execute Main com o catálogo e os arquivos de arte disponíveis no classpath ou no diretório de execução
