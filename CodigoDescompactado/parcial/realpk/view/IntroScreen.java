@@ -12,7 +12,6 @@ public class IntroScreen {
 
     public void show(Scanner input) {
         System.out.println(asciiRepo.getAsciiArt("INTRO"));
-        System.out.println("Pressione Enter para continuar...");
         if (input.hasNextLine()) {
             input.nextLine();
         }
