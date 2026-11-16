@@ -63,13 +63,9 @@ public class BattleEngine {
             int opponentMoveIndex = chooseRandomMove(opponentPokemon);
             executeTurn(playerMoveIndex, opponentMoveIndex);
         }
-
         Pokemon winner = checkWinner();
-        if (winner == null) {
-            screen.displayMessage("A batalha terminou sem vencedor.");
-        } else {
-            screen.displayMessage("Vencedor: " + winner.getName() + " (nível " + winner.getLevel() + ")!");
-        }
+        if (winner == null) screen.displayMessage("A batalha terminou sem vencedor.");
+        else screen.displayMessage("Vencedor: " + winner.getName() + " (nível " + winner.getLevel() + ")!");
     }
 
     private int readPlayerMove(Scanner input, BattleScreen screen) {
@@ -98,8 +94,7 @@ public class BattleEngine {
         for (int i = 0; i < moves.size(); i++) {
             if (moves.get(i).getCurrentPP() > 0) available.add(moves.get(i));
         }
-        Move selected = available.get(random.nextInt(available.size()));
-        return moves.indexOf(selected);
+        return moves.indexOf(available.get(random.nextInt(available.size())));
     }
 
     public void executeTurn(int playerMoveIndex, int opponentMoveIndex) {
@@ -108,14 +103,21 @@ public class BattleEngine {
         boolean playerFirst = playerPokemon.getSpeed() > opponentPokemon.getSpeed()
                 || (playerPokemon.getSpeed() == opponentPokemon.getSpeed() && random.nextBoolean());
         if (playerFirst) {
-            playerPokemon.attack(playerMoveIndex, opponentPokemon);
+            if (playerPokemon.attack(playerMoveIndex, opponentPokemon)) awardAttackExperience();
             if (!opponentPokemon.isFainted()) opponentPokemon.attack(opponentMoveIndex, playerPokemon);
         } else {
             opponentPokemon.attack(opponentMoveIndex, playerPokemon);
-            if (!playerPokemon.isFainted()) playerPokemon.attack(playerMoveIndex, opponentPokemon);
+            if (!playerPokemon.isFainted() && playerPokemon.attack(playerMoveIndex, opponentPokemon)) {
+                awardAttackExperience();
+            }
         }
         currentTurn++;
         grantWinnerReward();
+    }
+
+    private void awardAttackExperience() {
+        System.out.println(playerPokemon.getName() + " ganhou 25 de experiência pelo ataque!");
+        applyExperience(25);
     }
 
     private void grantWinnerReward() {
@@ -123,11 +125,15 @@ public class BattleEngine {
         rewardsGranted = true;
         if (checkWinner() == playerPokemon) {
             int reward = Math.max(50, opponentPokemon.getLevel() * 50);
-            System.out.println(playerPokemon.getName() + " ganhou " + reward + " de experiência!");
-            int levels = playerPokemon.gainExperience(reward);
-            while (levels-- > 0 && pokemonRepository != null && playerPokemon.getNextEvolutionId() > 0) {
-                pokemonRepository.findById(playerPokemon.getNextEvolutionId()).ifPresent(playerPokemon::evolveTo);
-            }
+            System.out.println(playerPokemon.getName() + " ganhou bônus de vitória: " + reward + " de experiência!");
+            applyExperience(reward);
+        }
+    }
+
+    private void applyExperience(int amount) {
+        int levels = playerPokemon.gainExperience(amount);
+        while (levels-- > 0 && pokemonRepository != null && playerPokemon.getNextEvolutionId() > 0) {
+            pokemonRepository.findById(playerPokemon.getNextEvolutionId()).ifPresent(playerPokemon::evolveTo);
         }
     }
 
