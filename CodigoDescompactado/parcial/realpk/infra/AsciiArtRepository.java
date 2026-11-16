@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Locale;
 
 public class AsciiArtRepository {
     private final Map<String, StringBuilder> asciiArts;
@@ -26,7 +27,7 @@ public class AsciiArtRepository {
             while ((line = reader.readLine()) != null) {
                 if (line.startsWith("===") && line.endsWith("===")) {
                     if (currentPokemon != null && currentArt != null) {
-                        asciiArts.put(currentPokemon, currentArt);
+                        asciiArts.put(currentPokemon.toUpperCase(Locale.ROOT), currentArt);
                     }
                     currentPokemon = line.substring(3, line.length() - 3).trim();
                     currentArt = new StringBuilder();
@@ -40,7 +41,7 @@ public class AsciiArtRepository {
                 }
             }
             if (currentPokemon != null && currentArt != null) {
-                asciiArts.put(currentPokemon, currentArt);
+                asciiArts.put(currentPokemon.toUpperCase(Locale.ROOT), currentArt);
             }
 
         } catch (IOException e) {
@@ -68,3 +69,4 @@ public class AsciiArtRepository {
         return "       /\\_/\\\n      ( o.o )\n       > ^ <   [Desconhecido]";
     }
 }
+
