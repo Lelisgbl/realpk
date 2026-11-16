@@ -151,3 +151,4 @@ public class BattleEngine {
     public Pokemon getOpponentPokemon() { return opponentPokemon; }
     public int getCurrentTurn() { return currentTurn; }
 }
+
