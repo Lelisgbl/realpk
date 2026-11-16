@@ -34,7 +34,39 @@ public class JsonPokemonRepository implements PokemonRepository {
         } catch (IOException e) {
             throw new IllegalStateException("Erro ao ler o arquivo de Pokémons: " + e.getMessage(), e);
         }
-        parseJsonToObjects(json.toString());
+        try {
+            parseJsonToObjects(removeComments(json.toString()));
+        } catch (RuntimeException e) {
+            throw new IllegalStateException("Catálogo de Pokémon inválido. Confira IDs, tipos, atributos e golpes em pokemons.json.", e);
+        }
+    }
+
+    private String removeComments(String source) {
+        StringBuilder result = new StringBuilder();
+        boolean quoted = false, escaped = false;
+        for (int i = 0; i < source.length(); i++) {
+            char current = source.charAt(i);
+            if (quoted) {
+                result.append(current);
+                if (escaped) escaped = false;
+                else if (current == '\\') escaped = true;
+                else if (current == '"') quoted = false;
+            } else if (current == '"') {
+                quoted = true;
+                result.append(current);
+            } else if (current == '/' && i + 1 < source.length() && source.charAt(i + 1) == '/') {
+                while (i < source.length() && source.charAt(i) != '\n') i++;
+                result.append('\n');
+            } else if (current == '/' && i + 1 < source.length() && source.charAt(i + 1) == '*') {
+                i += 2;
+                while (i + 1 < source.length() && !(source.charAt(i) == '*' && source.charAt(i + 1) == '/')) {
+                    if (source.charAt(i) == '\n') result.append('\n');
+                    i++;
+                }
+                i++;
+            } else result.append(current);
+        }
+        return result.toString();
     }
 
     private BufferedReader abrirReader(String filePath) throws IOException {

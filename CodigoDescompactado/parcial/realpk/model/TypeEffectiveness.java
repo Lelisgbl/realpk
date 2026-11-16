@@ -1,6 +1,7 @@
 package model;
 
 import java.util.Locale;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -8,7 +9,7 @@ import java.util.Set;
 public final class TypeEffectiveness {
     private record Row(Set<String> strong, Set<String> resisted, Set<String> immune) {}
 
-    private static final Map<String, Row> CHART = Map.ofEntries(
+    private static final Map<String, Row> CHART = new HashMap<>(Map.ofEntries(
         row("NORMAL", "", "ROCK STEEL", "GHOST"),
         row("FIRE", "GRASS ICE BUG STEEL", "FIRE WATER ROCK DRAGON", ""),
         row("WATER", "FIRE GROUND ROCK", "WATER GRASS DRAGON", ""),
@@ -27,7 +28,7 @@ public final class TypeEffectiveness {
         row("DARK", "PSYCHIC GHOST", "FIGHTING DARK FAIRY", ""),
         row("STEEL", "ICE ROCK FAIRY", "FIRE WATER ELECTRIC STEEL", ""),
         row("FAIRY", "FIGHTING DRAGON DARK", "FIRE POISON STEEL", "")
-    );
+    ));
 
     private TypeEffectiveness() {}
 
@@ -37,6 +38,13 @@ public final class TypeEffectiveness {
 
     private static Set<String> words(String value) {
         return value.isBlank() ? Set.of() : Set.of(value.split(" "));
+    }
+
+    /** Registers or replaces an attack type row using space-separated defender types. */
+    public static void registerType(String type, String strongAgainst, String resistedBy, String immuneAgainst) {
+        String key = type.toUpperCase(Locale.ROOT);
+        CHART.put(key, new Row(words(strongAgainst.toUpperCase(Locale.ROOT)),
+                words(resistedBy.toUpperCase(Locale.ROOT)), words(immuneAgainst.toUpperCase(Locale.ROOT))));
     }
 
     /** Combines both defending types; an immunity in either type makes the result zero. */

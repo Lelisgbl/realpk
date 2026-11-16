@@ -32,12 +32,16 @@ public class Main {
             System.out.println("[0] Sair");
             System.out.print("Escolha uma opção: ");
             if (!input.hasNextLine()) return;
-            switch (input.nextLine().trim()) {
-                case "1" -> pokedex.displayCatalog();
-                case "2" -> startBattle(input, repository, pokedex, battleScreen, saveGame);
-                case "3" -> resetProgress(input, saveGame);
-                case "0" -> { return; }
-                default -> System.out.println("Opção inválida.");
+            try {
+                switch (input.nextLine().trim()) {
+                    case "1" -> pokedex.displayCatalog();
+                    case "2" -> startBattle(input, repository, pokedex, battleScreen, saveGame);
+                    case "3" -> resetProgress(input, saveGame);
+                    case "0" -> { return; }
+                    default -> System.out.println("Opção inválida.");
+                }
+            } catch (RuntimeException e) {
+                System.out.println("Não foi possível concluir a operação: " + e.getMessage());
             }
         }
     }

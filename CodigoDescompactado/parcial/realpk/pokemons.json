@@ -1,3 +1,10 @@
+// Catálogo em JSONC: comentários // e /* ... */ são aceitos pelo JsonPokemonRepository.
+// Adicione cada forma como um objeto com id único, name, type, level, hp, attack, defense,
+// speed, evolutionId (0 na forma final) e moves (1 a 4 golpes com name/power/accuracy/type/maxPP).
+// Ligue a família pelos IDs: espécie-base -> forma intermediária -> forma final.
+// Tipos sem subclasse dedicada usam GenericPokemon automaticamente; registre sua eficácia
+// com TypeEffectiveness.registerType("NOVO_TIPO", "fortes", "resistidos", "imunes").
+// Nos três últimos campos, liste tipos defensores separados por espaço; use "" se não houver.
 [
   {"id":1,"name":"Bulbasaur","type":"GRASS","level":5,"hp":45,"attack":49,"defense":49,"speed":45,"evolutionId":2,"moves":[{"name":"Quick Attack","power":20,"accuracy":100,"type":"NORMAL","maxPP":20}]},
   {"id":2,"name":"Ivysaur","type":"GRASS","level":5,"hp":60,"attack":62,"defense":63,"speed":60,"evolutionId":3,"moves":[{"name":"Razor Leaf","power":35,"accuracy":95,"type":"GRASS","maxPP":15}]},
