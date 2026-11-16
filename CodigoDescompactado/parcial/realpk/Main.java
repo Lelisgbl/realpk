@@ -49,6 +49,7 @@ public class Main {
             System.out.println("Seleção cancelada.");
             return;
         }
+        player.prepareForBattle();
         Pokemon opponent = BattleEngine.chooseRandomOpponent(repository.findAll(), player, new Random());
         battleScreen.displayMessage(player.getName() + " enfrentará " + opponent.getName() + "!");
         new BattleEngine(player, opponent, repository).startBattle(input, battleScreen);
