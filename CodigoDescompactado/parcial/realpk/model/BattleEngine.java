@@ -124,7 +124,7 @@ public class BattleEngine {
         if (rewardsGranted || !isBattleOver()) return;
         rewardsGranted = true;
         if (checkWinner() == playerPokemon) {
-            int reward = Math.max(50, opponentPokemon.getLevel() * 200);
+            int reward = Math.max(50, opponentPokemon.getLevel() * 25);
             System.out.println(playerPokemon.getName() + " ganhou bônus de vitória: " + reward + " de experiência!");
             applyExperience(reward);
         }
