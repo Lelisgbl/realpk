@@ -1,2 +1,16 @@
 nessa parcial a única coisa de diferente que da pra fazer e trocar um dos pokemons que já estão no código (charmander e bulbassauro) pelo squirtle
 tirando isso e so rodar o código na main que já carrega os pokemons e os sprits deles (so o do bulbassauro ta bonito n troquei os outros ainda)
+
+Como adicionar novos pokemons e tipos no arquivo pokemon.json:
+
+// Catálogo em JSONC: comentários // e /* ... */ são aceitos pelo JsonPokemonRepository.
+// Adicione cada forma como um objeto com id único, name, type, level, hp, attack, defense,
+// speed, evolutionId (0 na forma final) e moves (1 a 4 golpes com name/power/accuracy/type/maxPP).
+// Ligue a família pelos IDs: espécie-base -> forma intermediária -> forma final.
+// Tipos sem subclasse dedicada usam GenericPokemon automaticamente; registre sua eficácia
+// com TypeEffectiveness.registerType("NOVO_TIPO", "fortes", "resistidos", "imunes").
+// Nos três últimos campos, liste tipos defensores separados por espaço; use "" se não houver.
+
+//tratamento de JSONC estão em [pokemons.json] e [JsonPokemonRepository.java]
+
+//O método para registrar efetividade está em [TypeEffectiveness.java]
