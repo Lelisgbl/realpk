@@ -1,29 +1,25 @@
 import infra.AsciiArtRepository;
 import infra.JsonPokemonRepository;
 import infra.PokemonRepository;
+import model.BattleEngine;
 import model.Pokemon;
 import view.BattleScreen;
-import model.BattleEngine;
+
+import java.util.Random;
+import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        // Carrega os dados dos Pokémons de um arquivo JSON
         PokemonRepository pokemonRepo = new JsonPokemonRepository("pokemons.json");
-        
-        // Carrega as artes ASCII de um arquivo JSON externo separado da view
         AsciiArtRepository artRepo = new AsciiArtRepository("ascii_arts.txt");
-        
-        // Injeta o repositório de artes na camada de visão
         BattleScreen battleScreen = new BattleScreen(artRepo);
 
-        // Exemplo de uso
-        Pokemon charmander = pokemonRepo.findByName("CHARMANDER").orElse(null);
-        Pokemon bulbasaur = pokemonRepo.findByName("BULBASAUR").orElse(null);
+        Pokemon player = pokemonRepo.findByName("CHARMANDER")
+                .orElseThrow(() -> new IllegalStateException("Charmander não encontrado no catálogo."));
+        Pokemon opponent = BattleEngine.chooseRandomOpponent(pokemonRepo.findAll(), player, new Random());
 
-        if (charmander != null && bulbasaur != null) {
-            battleScreen.renderBattleUI(charmander, bulbasaur);
-            BattleEngine battleEngine = new BattleEngine(charmander, bulbasaur);
-            
-        }
+        battleScreen.displayMessage(player.getName() + " enfrentará " + opponent.getName() + "!");
+        BattleEngine battleEngine = new BattleEngine(player, opponent, pokemonRepo);
+        battleEngine.startBattle(new Scanner(System.in), battleScreen);
     }
 }

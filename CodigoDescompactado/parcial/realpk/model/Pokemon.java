@@ -54,19 +54,29 @@ public abstract class Pokemon {
         this.nextEvolutionId = nextEvolutionId;
     }
 
-    public void attack(int moveIndex, Pokemon target) {
+    public boolean attack(int moveIndex, Pokemon target) {
         if (moveIndex < 0 || moveIndex >= moves.size()) {
             System.out.println("Movimento inválido!");
-            return;
+            return false;
         }
         Move move = moves.get(moveIndex);
         if (!move.useMove()) {
             System.out.println(move.getName() + " não tem mais PP!");
-            return;
+            return false;
         }
-        int damage = Math.max(1, attack + move.getPower() - target.getDefense() / 2);
+        double multiplier = TypeEffectiveness.multiplier(move.getType(), target);
+        int rawDamage = Math.max(1, attack + move.getPower() - target.getDefense() / 2);
+        int damage = (int) Math.round(rawDamage * multiplier);
         System.out.println(name + " usou " + move.getName() + "!");
-        target.takeDamage(damage);
+        if (multiplier == 0.0) {
+            System.out.println(TypeEffectiveness.describe(multiplier));
+        } else {
+            target.takeDamage(damage);
+            if (multiplier != 1.0) {
+                System.out.println(TypeEffectiveness.describe(multiplier) + " (" + damage + " de dano)");
+            }
+        }
+        return true;
     }
 
     public void takeDamage(int damage) {
